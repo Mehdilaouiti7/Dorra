@@ -1,0 +1,14 @@
+{
+  "name": "dorra-dev-tools",
+  "version": "1.0.0",
+  "description": "Dev tools setup with UI/UX, design, and testing tools",
+  "scripts": {
+    "test": "playwright test",
+    "test:install": "playwright install"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "impeccable": "^2.1.7",
+    "skillui": "^1.3.3"
+  }
+}
