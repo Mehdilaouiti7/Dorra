@@ -3,340 +3,273 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dorra &amp; Youssef — 26 Juin 2026</title>
+  <title>Dorra &amp; Youssef — 20 Juin 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ivory:  #FAF7F2;
-      --gold:   #C4974F;
-      --cream:  #E2C98A;
-      --brown:  #6B5B45;
-      --brown2: #4a3f30;
+      --ivory-cashmere: #FDFBF7;
+      --gold-luxe: #C5A059;
+      --gold-dark: #A37E3A;
+      --gold-light: #F1E5CF;
+      --sage-green: #7D8C82;
+      --espresso: #2B231B;
+      --charcoal: #3D352E;
+      --white-silk: rgba(255, 255, 255, 0.82);
     }
 
     html { scroll-behavior: smooth; }
 
-    /* Paper grain filter (reused on envelope and card) */
-    .grain-filter { display: none; }
-
     body {
-      background: var(--ivory);
-      color: var(--brown);
+      background: var(--ivory-cashmere);
+      color: var(--charcoal);
       font-family: 'Cormorant Garamond', Georgia, serif;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* ─── ENVELOPE OVERLAY ─────────────────────────────────────── */
+    /* Confetti Canvas overlay */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1001;
+    }
+
+    /* ─── STICKY HEADER ────────────────────────────────────────── */
+    #nav-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: rgba(253, 251, 247, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      z-index: 99;
+      transform: translateY(-100%);
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #nav-header.visible {
+      transform: translateY(0);
+    }
+    .nav-logo {
+      font-family: 'Great Vibes', cursive;
+      font-size: 28px;
+      color: var(--gold-dark);
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      color: var(--charcoal);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover {
+      color: var(--gold-luxe);
+    }
+
+    /* ─── SIMPLE INTRO OVERLAY ──────────────────────────────────── */
     #envelope-overlay {
       position: fixed;
       inset: 0;
-      background:
-        radial-gradient(ellipse at 50% 38%, #3a2e1c 0%, #100d06 100%);
+      background: #0F0C09;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      transition: opacity 0.9s ease 0.5s;
+      transition: opacity 1.2s ease 0.3s;
     }
     #envelope-overlay.fade-out {
       opacity: 0;
       pointer-events: none;
     }
 
-    /* Ambient glow behind envelope */
-    #envelope-overlay::before {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -60%);
-      width: min(560px, 90vw);
-      height: min(340px, 50vw);
-      background: radial-gradient(ellipse, rgba(196,151,79,0.18) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .env-scene {
+    .intro-inner {
+      text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: relative;
+      gap: 28px;
+      padding: 24px;
     }
 
-    .envelope-wrap {
-      position: relative;
-      width: min(420px, 88vw);
-      cursor: pointer;
-      user-select: none;
-      filter: drop-shadow(0 40px 80px rgba(0,0,0,0.75));
+    .intro-eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--gold-luxe);
+      opacity: 0.85;
     }
 
-    /* ── Card that rises from the envelope ── */
-    .env-card {
-      position: absolute;
-      bottom: 56%;
-      left: 50%;
-      transform: translateX(-50%) translateY(0);
-      width: 76%;
-      z-index: 1;
-      background: linear-gradient(150deg, #fdfbf5 0%, #f5eddd 100%);
-      border-radius: 2px;
-      padding: 20px 18px 16px;
-      text-align: center;
-      box-shadow:
-        0 -2px 6px rgba(0,0,0,0.06),
-        0 -10px 28px rgba(0,0,0,0.1),
-        inset 0 0 0 1px rgba(196,151,79,0.14);
-      transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.42s;
-    }
-    .envelope-wrap.open .env-card {
-      transform: translateX(-50%) translateY(-88px);
-    }
-    /* Subtle grain on card surface */
-    .env-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 2px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-      pointer-events: none;
-    }
-
-    .card-ornament {
-      color: var(--gold);
-      font-size: 11px;
-      letter-spacing: 10px;
-      opacity: 0.55;
-      margin: 2px 0;
-    }
-    .card-names {
+    .intro-names {
       font-family: 'Great Vibes', cursive;
-      font-size: 36px;
-      color: var(--brown2);
-      line-height: 1.15;
+      font-size: clamp(72px, 16vw, 130px);
+      color: var(--ivory-cashmere);
+      line-height: 1;
+    }
+
+    .intro-names span {
+      display: block;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(28px, 5vw, 44px);
+      font-style: italic;
+      font-weight: 300;
+      color: var(--gold-luxe);
+      line-height: 1.2;
       margin: 4px 0;
     }
-    .card-date {
-      font-size: 10px;
-      letter-spacing: 3px;
+
+    .intro-date {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(15px, 2.5vw, 18px);
+      letter-spacing: 5px;
+      color: rgba(241, 229, 207, 0.6);
       text-transform: uppercase;
-      color: var(--brown);
-      opacity: 0.6;
-      margin-top: 6px;
     }
 
-    /* ── Envelope body — the base rectangle ── */
-    .env-body {
-      width: 100%;
-      aspect-ratio: 3 / 2;
-      position: relative;
-      background: linear-gradient(155deg, #ead694 0%, #d4b85e 30%, #c8a43c 62%, #d8bf6c 100%);
-      border-radius: 3px 3px 12px 12px;
-      box-shadow:
-        0 1px 2px rgba(255,220,120,0.15) inset,
-        0 -1px 0 rgba(0,0,0,0.1) inset;
+    .intro-divider {
+      width: 60px;
+      height: 1px;
+      background: var(--gold-luxe);
+      opacity: 0.4;
     }
 
-    /* Classic diagonal-stripe envelope liner */
-    .env-liner {
-      position: absolute;
-      inset: 0;
-      border-radius: 3px 3px 12px 12px;
-      background-image: repeating-linear-gradient(
-        -45deg,
-        rgba(196,151,79,0.06) 0px,
-        rgba(196,151,79,0.06) 1px,
-        transparent 1px,
-        transparent 9px
-      );
+    .btn-entry {
+      background: transparent;
+      color: var(--ivory-cashmere);
+      border: 1px solid rgba(197, 160, 89, 0.5);
+      padding: 14px 46px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 40px;
+      transition: all 0.4s ease;
+      margin-top: 8px;
+    }
+    .btn-entry:hover {
+      background: var(--gold-luxe);
+      border-color: var(--gold-luxe);
+      color: #fff;
     }
 
-    /* Left diamond fold — clip-path triangle, shadow overlay */
-    .env-fold-left {
-      position: absolute;
-      inset: 0;
-      clip-path: polygon(0 0, 0 100%, 50% 50%);
-      background: linear-gradient(to right,
-        rgba(0,0,0,0.16) 0%,
-        rgba(0,0,0,0.04) 60%,
-        transparent 100%
-      );
-    }
+    @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.95} }
 
-    /* Right diamond fold */
-    .env-fold-right {
-      position: absolute;
-      inset: 0;
-      clip-path: polygon(100% 0, 100% 100%, 50% 50%);
-      background: linear-gradient(to left,
-        rgba(0,0,0,0.16) 0%,
-        rgba(0,0,0,0.04) 60%,
-        transparent 100%
-      );
-    }
-
-    /* Bottom fold */
-    .env-fold-bottom {
-      position: absolute;
-      inset: 0;
-      clip-path: polygon(0 100%, 50% 48%, 100% 100%);
-      background: linear-gradient(to top,
-        rgba(0,0,0,0.24) 0%,
-        rgba(0,0,0,0.06) 100%
-      );
-    }
-
-    /* Subtle crease lines at fold junctions */
-    .env-fold-left::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; bottom: 0;
-      width: 1px;
-      background: linear-gradient(to bottom,
-        transparent, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.15) 70%, transparent
-      );
-      transform-origin: left center;
-      transform: rotate(0);
-      left: 50%; top: 25%; bottom: 25%;
-    }
-
-    /* ── Flap — 3D perspective flip ── */
-    .env-flap-scene {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 58%;
-      transform-origin: top center;
-      transform-style: preserve-3d;
-      transition: transform 0.78s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 20;
-    }
-    .envelope-wrap.open .env-flap-scene {
-      transform: perspective(1000px) rotateX(-180deg);
-    }
-
-    /* Front face of flap (visible when closed) */
-    .env-flap-front {
-      position: absolute;
-      inset: 0;
-      clip-path: polygon(0 0, 100% 0, 50% 86%);
-      background: linear-gradient(168deg,
-        #f4e4a8 0%,
-        #dcc06a 40%,
-        #c9a83c 75%,
-        #b89230 100%
-      );
-      backface-visibility: hidden;
-    }
-    /* Highlight sheen on front flap */
-    .env-flap-front::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      clip-path: polygon(0 0, 100% 0, 50% 86%);
-      background: linear-gradient(to bottom,
-        rgba(255,255,255,0.22) 0%,
-        rgba(255,255,255,0.06) 30%,
-        transparent 65%
-      );
-    }
-    /* Shadow at fold crease */
-    .env-flap-front::after {
-      content: '';
-      position: absolute;
-      left: 0; right: 0;
-      bottom: 13%;
-      height: 18px;
-      background: linear-gradient(to top, rgba(0,0,0,0.12), transparent);
-      clip-path: polygon(0 100%, 50% 0%, 100% 100%);
-    }
-
-    /* Back face of flap (visible when open — rotated) */
-    .env-flap-back {
-      position: absolute;
-      inset: 0;
-      clip-path: polygon(0 0, 100% 0, 50% 86%);
-      background: linear-gradient(165deg, #b08828 0%, #9a7218 60%, #7a5a10 100%);
-      transform: rotateX(180deg);
-      backface-visibility: hidden;
-    }
-
-    /* ── Wax seal — centered on envelope body ── */
-    .wax-seal {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at 30% 26%, #f06060 0%, #c83030 25%, #921818 55%, #620e0e 100%);
-      box-shadow:
-        0 8px 24px rgba(0,0,0,0.6),
-        0 3px 8px rgba(0,0,0,0.4),
-        inset 0 3px 8px rgba(255,160,160,0.18),
-        inset 0 -4px 10px rgba(0,0,0,0.45);
+    /* ─── ENCADREMENT DÉCORATIF ──────────────────────────────── */
+    #portrait-showcase {
+      padding: 80px 24px 100px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      z-index: 25;
-      transition: transform 0.35s ease, opacity 0.35s ease;
+      gap: 20px;
+      background: var(--ivory-cashmere);
+      position: relative;
+      overflow: hidden;
     }
-    /* Embossed ring */
-    .wax-seal::before {
-      content: '';
+
+    .portrait-frame {
+      position: relative;
+      width: min(340px, 80vw);
+    }
+
+    /* arche dorée SVG en overlay */
+    .portrait-arch-svg {
       position: absolute;
-      inset: 5px;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 210, 210, 0.16);
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.3);
+      inset: -18px;
+      width: calc(100% + 36px);
+      height: calc(100% + 36px);
+      pointer-events: none;
+      z-index: 2;
     }
-    /* Specular highlight */
-    .wax-seal::after {
-      content: '';
+
+    /* ornements aux 4 coins */
+    .corner {
       position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: radial-gradient(
-        ellipse at 32% 22%,
-        rgba(255,255,255,0.18) 0%,
-        transparent 55%
-      );
+      width: 52px;
+      height: 52px;
+      z-index: 3;
+      pointer-events: none;
     }
-    .wax-text {
-      font-family: 'Great Vibes', cursive;
-      color: rgba(255, 238, 220, 0.96);
-      font-size: 18px;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    .corner--tl { top: -14px; left: -14px; }
+    .corner--tr { top: -14px; right: -14px; transform: scaleX(-1); }
+    .corner--bl { bottom: -14px; left: -14px; transform: scaleY(-1); }
+    .corner--br { bottom: -14px; right: -14px; transform: scale(-1); }
+
+    .portrait-img {
+      display: block;
+      width: 100%;
+      border-radius: 160px 160px 12px 12px;
+      object-fit: cover;
+      aspect-ratio: 3 / 4;
       position: relative;
       z-index: 1;
-      letter-spacing: 0.5px;
-    }
-    .envelope-wrap.open .wax-seal {
-      transform: translate(-50%, -50%) scale(0.88);
-      opacity: 0.65;
     }
 
-    .envelope-hint {
-      margin-top: 34px;
+    /* ligne horizontale dorée sous l'image */
+    .portrait-rule {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .portrait-rule span {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold-luxe));
+    }
+    .portrait-rule span:last-child {
+      background: linear-gradient(to left, transparent, var(--gold-luxe));
+    }
+    .portrait-rule-diamond {
+      width: 6px;
+      height: 6px;
+      background: var(--gold-luxe);
+      transform: rotate(45deg);
+    }
+
+    .portrait-name {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(48px, 10vw, 72px);
+      color: var(--espresso);
       text-align: center;
-      font-size: 11px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--cream);
-      opacity: 0.45;
-      animation: pulse 2.8s ease-in-out infinite;
+      line-height: 1;
     }
-    @keyframes pulse { 0%,100%{opacity:0.28} 50%{opacity:0.72} }
 
-    /* ─── SVG BOTANICALS ──────────────────────────────────────── */
+    .portrait-subtitle {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      text-align: center;
+    }
+
+    /* ─── BOTANICALS ──────────────────────────────────────────── */
     .botanical {
       position: absolute;
       pointer-events: none;
-      opacity: 0.18;
+      opacity: 0.12;
+      transition: transform 0.5s ease;
     }
 
     /* ─── HERO ────────────────────────────────────────────────── */
@@ -347,207 +280,320 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 80px 24px;
+      padding: 120px 24px 80px;
       position: relative;
       overflow: hidden;
     }
 
-    .hero-botanical-tl { top: 0; left: 0; transform: rotate(0deg); }
-    .hero-botanical-tr { top: 0; right: 0; transform: rotate(90deg); }
-    .hero-botanical-bl { bottom: 0; left: 0; transform: rotate(270deg); }
-    .hero-botanical-br { bottom: 0; right: 0; transform: rotate(180deg); }
+    .hero-botanical-tl { top: -20px; left: -20px; width: 280px; opacity: 0.08; }
+    .hero-botanical-tr { top: -20px; right: -20px; width: 280px; transform: scaleX(-1); opacity: 0.08; }
 
     .hero-eyebrow {
-      font-size: clamp(13px, 1.8vw, 16px);
-      letter-spacing: 4px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(11px, 1.5vw, 13px);
+      letter-spacing: 6px;
       text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 32px;
-      font-weight: 400;
+      color: var(--gold-dark);
+      margin-bottom: 24px;
+      font-weight: 300;
     }
 
-    .hero-divider {
-      width: 120px;
-      height: 1px;
-      background: linear-gradient(to right, transparent, var(--gold), transparent);
-      margin: 0 auto 32px;
+    .hero-names-arch {
+      position: relative;
+      padding: 40px 0;
+      margin-bottom: 20px;
+    }
+    
+    .hero-names-arch::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: clamp(280px, 45vw, 440px);
+      height: clamp(380px, 60vw, 560px);
+      border: 1px solid rgba(197, 160, 89, 0.22);
+      border-radius: 220px 220px 0 0;
+      pointer-events: none;
+      z-index: 1;
     }
 
     .hero-names {
       font-family: 'Great Vibes', cursive;
-      font-size: clamp(72px, 14vw, 128px);
-      line-height: 1.05;
-      color: var(--brown2);
-      margin-bottom: 8px;
+      font-size: clamp(80px, 14vw, 135px);
+      line-height: 1;
+      color: var(--espresso);
+      position: relative;
+      z-index: 2;
     }
     .hero-ampersand {
-      font-family: 'Great Vibes', cursive;
-      font-size: clamp(48px, 8vw, 72px);
-      color: var(--gold);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(48px, 8vw, 76px);
+      color: var(--gold-luxe);
       display: block;
-      line-height: 1;
+      line-height: 0.8;
+      margin: 15px 0;
+      font-weight: 300;
     }
 
     .hero-date {
-      margin-top: 36px;
-      font-size: clamp(14px, 2vw, 18px);
-      letter-spacing: 5px;
+      margin-top: 40px;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(18px, 2.5vw, 24px);
+      letter-spacing: 6px;
       text-transform: uppercase;
-      font-weight: 300;
-      color: var(--brown);
+      font-weight: 400;
+      color: var(--espresso);
     }
 
     .hero-location {
-      margin-top: 10px;
-      font-size: clamp(14px, 1.8vw, 17px);
-      color: var(--gold);
+      margin-top: 14px;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(15px, 2vw, 18px);
+      color: var(--gold-dark);
       font-style: italic;
-      font-weight: 300;
+      font-weight: 400;
+      letter-spacing: 2px;
     }
-
-    .scroll-cue {
-      position: absolute;
-      bottom: 36px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      opacity: 0.45;
-      animation: scrollBob 2s ease-in-out infinite;
-    }
-    .scroll-cue span { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; }
-    .scroll-cue svg { width: 18px; }
-    @keyframes scrollBob { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
 
     /* ─── SECTION BASE ────────────────────────────────────────── */
     section {
-      padding: clamp(64px, 10vw, 120px) clamp(24px, 6vw, 80px);
-      max-width: 900px;
+      padding: clamp(80px, 12vw, 140px) clamp(24px, 6vw, 80px);
+      max-width: 1000px;
       margin: 0 auto;
+      position: relative;
     }
 
     .section-label {
+      font-family: 'Montserrat', sans-serif;
       font-size: 11px;
-      letter-spacing: 4px;
+      letter-spacing: 5px;
       text-transform: uppercase;
-      color: var(--gold);
+      color: var(--gold-dark);
       text-align: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+      font-weight: 400;
     }
 
     .section-title {
       font-family: 'Great Vibes', cursive;
-      font-size: clamp(36px, 6vw, 56px);
+      font-size: clamp(40px, 7vw, 65px);
       text-align: center;
-      color: var(--brown2);
-      margin-bottom: 48px;
+      color: var(--espresso);
+      margin-bottom: 60px;
     }
 
     .ornament {
       text-align: center;
-      color: var(--gold);
-      font-size: 22px;
-      letter-spacing: 12px;
-      margin-bottom: 48px;
-      opacity: 0.6;
+      color: var(--gold-luxe);
+      font-size: 18px;
+      letter-spacing: 16px;
+      margin-bottom: 60px;
+      opacity: 0.65;
     }
 
-    /* ─── DETAILS ─────────────────────────────────────────────── */
+    /* ─── DETAILS (EDITORIAL PANELS) ──────────────────────────── */
     #details {
-      border-top: 1px solid rgba(196,151,79,0.2);
-      border-bottom: 1px solid rgba(196,151,79,0.2);
+      border-top: 1px solid rgba(197, 160, 89, 0.15);
+      border-bottom: 1px solid rgba(197, 160, 89, 0.15);
     }
 
     .details-grid {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 0 32px;
-      align-items: start;
+      grid-template-columns: 1fr 1px 1fr;
+      gap: 40px;
+      align-items: stretch;
     }
 
-    .detail-block {
+    .detail-card {
       text-align: center;
-      padding: 16px 8px;
+      padding: 50px 30px;
+      background: white;
+      border-radius: 200px 200px 10px 10px; /* Gorgeous Arch shaped panels */
+      border: 1px solid rgba(197, 160, 89, 0.12);
+      box-shadow: 0 10px 40px rgba(43, 35, 27, 0.03);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 480px;
     }
-    .detail-icon {
-      width: 44px; height: 44px;
-      margin: 0 auto 16px;
-      color: var(--gold);
+    .detail-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(197, 160, 89, 0.15);
+      border-color: var(--gold-luxe);
     }
+
+    .detail-top-decor {
+      font-size: 24px;
+      color: var(--gold-luxe);
+      margin-bottom: 10px;
+    }
+
     .detail-label {
+      font-family: 'Montserrat', sans-serif;
       font-size: 11px;
       letter-spacing: 3px;
       text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 8px;
+      color: var(--gold-dark);
+      margin-bottom: 12px;
+      font-weight: 500;
     }
     .detail-time {
       font-family: 'Great Vibes', cursive;
-      font-size: 36px;
-      color: var(--brown2);
+      font-size: 46px;
+      color: var(--espresso);
       line-height: 1;
-      margin-bottom: 8px;
+      margin-bottom: 16px;
     }
     .detail-place {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--brown);
-      margin-bottom: 4px;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--espresso);
+      margin-bottom: 6px;
     }
     .detail-address {
-      font-size: 13px;
+      font-size: 15px;
       font-style: italic;
-      color: var(--brown);
-      opacity: 0.7;
+      color: var(--charcoal);
+      opacity: 0.75;
+      margin-bottom: 30px;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: transparent;
+      color: var(--espresso);
+      border: 1px solid var(--gold-luxe);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      align-self: center;
+    }
+    .btn-secondary:hover {
+      background: var(--gold-luxe);
+      color: #fff;
+      border-color: var(--gold-luxe);
+    }
+    .btn-secondary svg {
+      width: 14px;
+      height: 14px;
     }
 
     .details-sep {
-      width: 1px;
-      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      background: linear-gradient(to bottom, transparent, rgba(197, 160, 89, 0.3), transparent);
       align-self: stretch;
-      opacity: 0.4;
+    }
+
+    /* ─── DRESS CODE ──────────────────────────────────────────── */
+    #dress-code {
+      background: linear-gradient(to bottom, var(--ivory-cashmere), #F3EDE4);
+      text-align: center;
+    }
+    .dress-desc {
+      max-width: 650px;
+      margin: 0 auto 40px;
+      font-size: 18px;
+      line-height: 1.7;
+      font-style: italic;
+      font-weight: 300;
+    }
+    .palette-container {
+      display: flex;
+      justify-content: center;
+      gap: clamp(16px, 4vw, 32px);
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+    .palette-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .color-swatch {
+      width: clamp(60px, 12vw, 80px);
+      height: clamp(60px, 12vw, 80px);
+      border-radius: 50%;
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.12), 0 8px 16px rgba(43, 35, 27, 0.08);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 2px solid white;
+    }
+    .color-swatch:hover {
+      transform: scale(1.15) translateY(-5px);
+    }
+    .color-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      opacity: 0.8;
+      color: var(--charcoal);
     }
 
     /* ─── COUNTDOWN ───────────────────────────────────────────── */
     #countdown-section {
-      background: var(--brown2);
+      background: linear-gradient(135deg, #241D17 0%, #0F0C09 100%);
       max-width: 100%;
-      padding: clamp(64px, 10vw, 100px) 24px;
+      padding: 100px 24px;
+      position: relative;
+      overflow: hidden;
+      border-top: 1px solid rgba(197, 160, 89, 0.2);
     }
-    #countdown-section .section-label { color: var(--cream); opacity: 0.7; }
-    #countdown-section .section-title { color: var(--cream); }
+    #countdown-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 50% 50%, rgba(197,160,89,0.1) 0%, transparent 80%);
+      pointer-events: none;
+    }
+    #countdown-section .section-label { color: var(--gold-light); opacity: 0.9; }
+    #countdown-section .section-title { color: #FFFBF5; }
 
     .countdown-grid {
       display: flex;
       justify-content: center;
       gap: clamp(24px, 6vw, 64px);
       flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
     }
     .cd-block {
       text-align: center;
-      min-width: 70px;
+      min-width: 100px;
     }
     .cd-num {
       font-family: 'Great Vibes', cursive;
-      font-size: clamp(52px, 10vw, 80px);
+      font-size: clamp(60px, 12vw, 100px);
       line-height: 1;
-      color: var(--cream);
+      color: var(--gold-light);
       display: block;
+      text-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
     .cd-label {
-      font-size: 11px;
-      letter-spacing: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      letter-spacing: 4px;
       text-transform: uppercase;
-      color: var(--gold);
-      margin-top: 4px;
+      color: #C0B19F;
+      margin-top: 8px;
     }
     .cd-sep {
       font-family: 'Great Vibes', cursive;
-      font-size: 56px;
-      color: var(--gold);
-      opacity: 0.5;
+      font-size: 65px;
+      color: var(--gold-luxe);
+      opacity: 0.55;
       align-self: center;
       line-height: 1;
     }
@@ -555,7 +601,7 @@
     /* ─── PROGRAM ─────────────────────────────────────────────── */
     .timeline {
       position: relative;
-      max-width: 500px;
+      max-width: 600px;
       margin: 0 auto;
     }
     .timeline::before {
@@ -564,16 +610,16 @@
       left: 50%;
       top: 0; bottom: 0;
       width: 1px;
-      background: linear-gradient(to bottom, transparent, var(--gold) 10%, var(--gold) 90%, transparent);
+      background: linear-gradient(to bottom, transparent, var(--gold-luxe) 10%, var(--gold-luxe) 90%, transparent);
       opacity: 0.35;
       transform: translateX(-50%);
     }
 
     .tl-item {
       display: grid;
-      grid-template-columns: 1fr 40px 1fr;
-      gap: 0 16px;
-      margin-bottom: 36px;
+      grid-template-columns: 1fr 60px 1fr;
+      gap: 0 24px;
+      margin-bottom: 60px;
       align-items: center;
     }
     .tl-item:nth-child(odd) .tl-content { grid-column: 1; text-align: right; }
@@ -585,42 +631,121 @@
     .tl-item:nth-child(even) .tl-content { grid-column: 3; }
 
     .tl-dot {
-      width: 14px; height: 14px;
+      width: 18px; height: 18px;
       border-radius: 50%;
-      background: var(--ivory);
-      border: 2px solid var(--gold);
+      background: var(--ivory-cashmere);
+      border: 3px solid var(--gold-luxe);
       margin: 0 auto;
       position: relative;
       z-index: 1;
+      box-shadow: 0 0 0 5px var(--ivory-cashmere);
     }
     .tl-time {
       font-family: 'Great Vibes', cursive;
-      font-size: 26px;
-      color: var(--gold);
+      font-size: 34px;
+      color: var(--gold-dark);
     }
     .tl-title {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--brown2);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--espresso);
     }
     .tl-desc {
-      font-size: 13px;
+      font-size: 14.5px;
       font-style: italic;
-      color: var(--brown);
-      opacity: 0.75;
+      color: var(--charcoal);
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    /* ─── GUESTBOOK / LIVRE D'OR ────────────────────────────── */
+    #guestbook {
+      background: #F4EFEB;
+      border-top: 1px solid rgba(197, 160, 89, 0.15);
+      border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+    }
+    .gb-form {
+      max-width: 550px;
+      margin: 0 auto 50px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.02);
+      border: 1px solid rgba(197, 160, 89, 0.1);
+    }
+    .gb-input-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .gb-messages {
+      max-width: 750px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 15px;
+    }
+    .gb-messages::-webkit-scrollbar {
+      width: 4px;
+    }
+    .gb-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .gb-messages::-webkit-scrollbar-thumb {
+      background: var(--gold-luxe);
+      border-radius: 4px;
+    }
+    .msg-card {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+      border-left: 3px solid var(--gold-luxe);
+      animation: fadeInMsg 0.5s ease-out;
+    }
+    @keyframes fadeInMsg {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .msg-author {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 500;
+      color: var(--gold-dark);
+      margin-bottom: 6px;
+    }
+    .msg-text {
+      font-size: 15px;
+      font-style: italic;
+      color: var(--charcoal);
+      line-height: 1.5;
     }
 
     /* ─── RSVP ────────────────────────────────────────────────── */
     #rsvp {
-      background: linear-gradient(to bottom, var(--ivory), #f0ebe2);
+      background: var(--ivory-cashmere);
     }
 
     .rsvp-form {
-      max-width: 480px;
+      max-width: 550px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
       gap: 32px;
+      background: white;
+      padding: 50px 40px;
+      border-radius: 12px;
+      border: 1px solid rgba(197, 160, 89, 0.12);
+      box-shadow: 0 15px 45px rgba(43, 35, 27, 0.04);
     }
 
     .form-field {
@@ -628,111 +753,330 @@
     }
     .form-field label {
       display: block;
-      font-size: 11px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
       letter-spacing: 3px;
       text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 8px;
+      color: var(--gold-dark);
+      margin-bottom: 10px;
+      font-weight: 500;
     }
     .form-field input,
-    .form-field select {
+    .form-field select,
+    .form-field textarea {
       width: 100%;
       background: transparent;
       border: none;
-      border-bottom: 1px solid rgba(196,151,79,0.4);
-      padding: 8px 0;
+      border-bottom: 1px solid rgba(197, 160, 89, 0.35);
+      padding: 10px 0;
       font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 16px;
-      color: var(--brown);
+      font-size: 17px;
+      color: var(--charcoal);
       outline: none;
-      transition: border-color 0.25s;
+      transition: border-color 0.3s;
       appearance: none;
     }
-    .form-field input:focus,
-    .form-field select:focus {
-      border-bottom-color: var(--gold);
+    .form-field textarea {
+      resize: none;
+      height: 80px;
     }
-    .form-field input::placeholder { color: rgba(107,91,69,0.4); font-style: italic; }
+    .form-field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C5A059' stroke-width='1.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right center;
+      background-size: 16px;
+      padding-right: 20px;
+    }
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+      border-bottom-color: var(--gold-luxe);
+    }
+    .form-field input::placeholder,
+    .form-field textarea::placeholder { color: rgba(107,91,69,0.4); font-style: italic; }
 
     .form-field::after {
       content: '';
       position: absolute;
       bottom: 0; left: 0;
-      width: 0; height: 1px;
-      background: var(--gold);
-      transition: width 0.35s ease;
+      width: 0; height: 1.5px;
+      background: var(--gold-luxe);
+      transition: width 0.4s ease;
     }
     .form-field:focus-within::after { width: 100%; }
 
     .btn-submit {
       align-self: center;
-      background: var(--brown2);
-      color: var(--cream);
+      background: var(--espresso);
+      color: var(--gold-light);
       border: none;
-      padding: 14px 48px;
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 14px;
+      padding: 16px 54px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
       letter-spacing: 3px;
       text-transform: uppercase;
       cursor: pointer;
-      border-radius: 1px;
-      transition: background 0.25s, color 0.25s;
+      border-radius: 40px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 10px 25px rgba(43, 35, 27, 0.25);
     }
-    .btn-submit:hover { background: var(--gold); color: var(--ivory); }
+    .btn-submit:hover {
+      background: var(--gold-luxe);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(197, 160, 89, 0.35);
+    }
 
     .form-note {
       text-align: center;
-      font-size: 13px;
+      font-size: 14px;
       font-style: italic;
-      color: var(--brown);
-      opacity: 0.6;
+      color: var(--charcoal);
+      opacity: 0.7;
     }
 
     .form-success {
       display: none;
       text-align: center;
-      padding: 24px;
+      padding: 40px 30px;
+      background: white;
+      max-width: 550px;
+      margin: 0 auto;
+      border-radius: 12px;
+      border: 1px solid rgba(197, 160, 89, 0.12);
+      box-shadow: 0 15px 45px rgba(0,0,0,0.03);
     }
     .form-success .success-names {
       font-family: 'Great Vibes', cursive;
-      font-size: 48px;
-      color: var(--gold);
+      font-size: 56px;
+      color: var(--gold-dark);
+      margin-bottom: 12px;
     }
-    .form-success p { font-size: 16px; font-style: italic; margin-top: 12px; color: var(--brown); }
+    .form-success p { font-size: 18px; font-style: italic; line-height: 1.6; color: var(--charcoal); }
+
+    /* ─── CUSTOM TOAST ────────────────────────────────────────── */
+    #custom-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(43, 35, 27, 0.96);
+      color: var(--ivory-cashmere);
+      padding: 14px 28px;
+      border-radius: 35px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+      border: 1px solid var(--gold-luxe);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+      pointer-events: none;
+    }
+    #custom-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    #custom-toast svg {
+      width: 18px; height: 18px; stroke: var(--gold-light);
+    }
+
+    /* ─── AUDIO PLAYER (VINYL COMPACT DESIGN) ──────────────────── */
+    .audio-player {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 10px 20px 10px 10px;
+      border-radius: 50px;
+      box-shadow: 0 8px 30px rgba(43,35,27,0.1);
+      border: 1px solid rgba(197,160,89,0.15);
+      backdrop-filter: blur(8px);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+    }
+    .audio-player.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .audio-player-btn {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--espresso);
+      border: 2px solid var(--gold-luxe);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--gold-light);
+      transition: transform 0.4s, background 0.3s;
+      position: relative;
+    }
+    .audio-player-btn::after {
+      content: '';
+      position: absolute;
+      width: 6px; height: 6px;
+      background: var(--ivory-cashmere);
+      border-radius: 50%;
+      z-index: 10;
+    }
+    .audio-player.playing .audio-player-btn {
+      animation: spinVinyl 3s linear infinite;
+    }
+    @keyframes spinVinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .audio-player-text {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--espresso);
+      font-weight: 500;
+    }
 
     /* ─── FOOTER ──────────────────────────────────────────────── */
     footer {
-      background: var(--brown2);
+      background: #241D17;
       text-align: center;
-      padding: 64px 24px;
-      color: var(--cream);
+      padding: 80px 24px;
+      color: var(--gold-light);
+      border-top: 1px solid rgba(197, 160, 89, 0.15);
     }
     footer .footer-names {
       font-family: 'Great Vibes', cursive;
-      font-size: clamp(42px, 8vw, 72px);
-      color: var(--cream);
-      opacity: 0.9;
+      font-size: clamp(45px, 8vw, 75px);
+      color: var(--gold-light);
+      opacity: 0.95;
       margin-bottom: 12px;
     }
     footer .footer-love {
-      font-size: 14px;
-      letter-spacing: 4px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      letter-spacing: 5px;
       text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0.75;
+      color: var(--gold-luxe);
       margin-bottom: 24px;
     }
     footer .footer-date {
-      font-size: 13px;
-      letter-spacing: 2px;
-      opacity: 0.4;
+      font-size: 14px;
+      letter-spacing: 3px;
+      opacity: 0.5;
+    }
+
+    /* ─── PHOTOS GALLERY SECTION ────────────────────────────── */
+    #couple-gallery {
+      background: #FFFBF5;
+      padding: 100px 24px;
+      border-top: 1px solid rgba(197, 160, 89, 0.1);
+    }
+    .gallery-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid rgba(197, 160, 89, 0.1);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      cursor: pointer;
+    }
+    .gallery-item:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(197, 160, 89, 0.15);
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s ease;
+    }
+    .gallery-item:hover img {
+      transform: scale(1.1);
+    }
+    .gallery-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(43,35,27,0.4), transparent 50%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .gallery-item:hover::after {
+      opacity: 1;
+    }
+
+    .gallery-item--featured {
+      grid-column: span 1;
+      aspect-ratio: 3 / 4;
+    }
+
+    @media (min-width: 768px) {
+      .gallery-item--featured {
+        grid-column: span 2;
+        aspect-ratio: 4 / 3;
+      }
+    }
+
+    .gallery-placeholder {
+      aspect-ratio: 3 / 4;
+      background: #F8F4EE;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed rgba(197, 160, 89, 0.35);
+      cursor: default;
+    }
+    .gallery-placeholder:hover {
+      transform: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .gallery-placeholder:hover::after { opacity: 0; }
+    .placeholder-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      opacity: 0.55;
+    }
+    .placeholder-inner svg {
+      width: 52px;
+      height: 52px;
+    }
+    .placeholder-inner p {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold-dark);
     }
 
     /* ─── SCROLL REVEAL ───────────────────────────────────────── */
     .reveal {
       opacity: 0;
-      transform: translateY(32px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
+      transform: translateY(35px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
     }
     .reveal.visible {
       opacity: 1;
@@ -740,35 +1084,60 @@
     }
 
     /* ─── RESPONSIVE ──────────────────────────────────────────── */
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      #nav-header {
+        padding: 0 20px;
+      }
+      .nav-links {
+        display: none; /* Keep clean layout on mobile */
+      }
       .details-grid {
         grid-template-columns: 1fr;
-        gap: 32px;
+        gap: 40px;
       }
       .details-sep { display: none; }
-      .detail-block { border-bottom: 1px solid rgba(196,151,79,0.15); padding-bottom: 32px; }
-      .detail-block:last-child { border-bottom: none; }
-
-      .timeline::before { left: 20px; }
-      .tl-item {
-        grid-template-columns: 40px 1fr;
-        gap: 0 12px;
-      }
-      .tl-item:nth-child(odd) .tl-content,
-      .tl-item:nth-child(even) .tl-content { grid-column: 2; text-align: left; }
-      .tl-item:nth-child(odd) .tl-dot,
-      .tl-item:nth-child(even) .tl-dot { grid-column: 1; }
-      .tl-item:nth-child(odd) .tl-time,
-      .tl-item:nth-child(even) .tl-time { grid-column: 2; grid-row: 1; text-align: left; }
-      .tl-content { grid-row: 2; }
-
+      .detail-card { min-height: auto; padding: 40px 20px; }
       .cd-sep { display: none; }
+      .audio-player { bottom: 16px; right: 16px; }
+    }
+
+    /* ─── SCROLL CUE ─────────────────────────────────────────────── */
+    .scroll-cue {
+      margin-top: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      opacity: 0.55;
+      animation: scrollBounce 2.2s ease-in-out infinite;
+    }
+    .scroll-cue svg { width: 18px; height: 24px; color: var(--gold-dark); }
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(8px); }
     }
   </style>
 </head>
 <body>
 
-<!-- SVG filter: paper grain (used via CSS filter url()) -->
+<!-- Sticky Header Navigation -->
+<header id="nav-header">
+  <a href="#" class="nav-logo">D &amp; Y</a>
+  <ul class="nav-links">
+    <li><a href="#couple-gallery">Le Couple</a></li>
+    <li><a href="#details">Lieux</a></li>
+    <li><a href="#programme">Programme</a></li>
+  </ul>
+</header>
+
+<!-- Dynamic Confetti & Petal Canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- SVG filter: paper grain -->
 <svg class="grain-filter" xmlns="http://www.w3.org/2000/svg">
   <filter id="grain" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
     <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
@@ -777,317 +1146,549 @@
   </filter>
 </svg>
 
-<!-- ─── ENVELOPE OVERLAY ─────────────────────────────────────── -->
+<!-- ─── SIMPLE INTRO OVERLAY ─────────────────────────────────────── -->
 <div id="envelope-overlay">
-  <div class="env-scene">
-    <div class="envelope-wrap" id="envelopeWrap">
-
-      <!-- Card that peeks and rises -->
-      <div class="env-card">
-        <div class="card-ornament">✦</div>
-        <div class="card-names">Dorra &amp; Youssef</div>
-        <div class="card-date">26 · VI · 2026</div>
-        <div class="card-ornament">✦</div>
-      </div>
-
-      <!-- Envelope body -->
-      <div class="env-body">
-        <!-- Diagonal liner pattern -->
-        <div class="env-liner"></div>
-
-        <!-- Diamond fold shadows (clip-path, not border tricks) -->
-        <div class="env-fold-left"></div>
-        <div class="env-fold-right"></div>
-        <div class="env-fold-bottom"></div>
-
-        <!-- Top flap — rotates in 3D on click -->
-        <div class="env-flap-scene">
-          <div class="env-flap-front"></div>
-          <div class="env-flap-back"></div>
-        </div>
-
-        <!-- Wax seal — centered on body, seals the flap visually -->
-        <div class="wax-seal">
-          <div class="wax-text">D &amp; Y</div>
-        </div>
-      </div>
-
+  <div class="intro-inner">
+    <p class="intro-eyebrow">Vous êtes invités à célébrer</p>
+    <div class="intro-names">
+      Dorra
+      <span>&amp;</span>
+      Youssef
     </div>
-    <p class="envelope-hint">Cliquez pour ouvrir</p>
+    <div class="intro-divider"></div>
+    <p class="intro-date">20 Juin 2026 — Hacienda Events</p>
+    <button class="btn-entry" id="enterBtn">Ouvrir l'invitation</button>
   </div>
+</div>
+
+<!-- ─── FLOATING VINYL AUDIO PLAYER ────────────────────────── -->
+<div class="audio-player" id="audioPlayer">
+  <button class="audio-player-btn" id="audioToggleBtn" aria-label="Play/Pause Music">
+    <!-- Play/Pause visualisé par l'animation du vinyle -->
+  </button>
+  <span class="audio-player-text">C. Debussy</span>
+</div>
+
+<!-- Background Audio Track (Debussy - Clair de Lune piano) -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="https://www.mfiles.co.uk/mp3-downloads/debussy-clair-de-lune.mp3" type="audio/mpeg">
+</audio>
+
+<!-- ─── CUSTOM TOAST ────────────────────────────────────────── -->
+<div id="custom-toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="12" y1="8" x2="12" y2="12"/>
+    <line x1="12" y1="16" x2="12.01" y2="16"/>
+  </svg>
+  <span id="toast-message">Merci d'entrer vos informations</span>
 </div>
 
 <!-- ─── HERO ──────────────────────────────────────────────────── -->
 <section id="hero">
-  <!-- Botanical corners -->
-  <svg class="botanical hero-botanical-tl" width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10 10 Q40 60 20 110 Q50 80 90 100 Q60 50 10 10Z" fill="#6B5B45"/>
-    <path d="M15 15 Q70 30 80 80 Q40 60 15 15Z" fill="#6B5B45"/>
-    <path d="M30 5 Q50 50 30 90" stroke="#C4974F" stroke-width="1" fill="none"/>
-    <circle cx="50" cy="45" r="6" fill="#C4974F" opacity="0.5"/>
-    <circle cx="38" cy="72" r="4" fill="#C4974F" opacity="0.4"/>
-    <circle cx="70" cy="30" r="5" fill="#6B5B45" opacity="0.6"/>
-    <path d="M80 5 Q100 40 85 80 Q110 60 105 20Z" fill="#6B5B45" opacity="0.7"/>
-    <path d="M5 80 Q40 100 60 140 Q30 120 5 80Z" fill="#6B5B45" opacity="0.6"/>
-    <circle cx="35" cy="105" r="3" fill="#C4974F" opacity="0.35"/>
+  <!-- Elegant minimal line botanicals -->
+  <svg class="botanical hero-botanical-tl" viewBox="0 0 100 100" fill="none" stroke="#C5A059" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10,90 Q30,60 50,50" />
+    <path d="M50,50 Q70,30 90,10" />
+    <path d="M30,70 C40,60 45,55 50,45 C55,35 60,30 70,25" />
+    <circle cx="50" cy="50" r="1.5" fill="#C5A059"/>
+    <circle cx="70" cy="25" r="1" fill="#C5A059"/>
+    <circle cx="30" cy="70" r="1" fill="#C5A059"/>
   </svg>
-  <svg class="botanical hero-botanical-tr" width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10 10 Q40 60 20 110 Q50 80 90 100 Q60 50 10 10Z" fill="#6B5B45"/>
-    <path d="M15 15 Q70 30 80 80 Q40 60 15 15Z" fill="#6B5B45"/>
-    <path d="M30 5 Q50 50 30 90" stroke="#C4974F" stroke-width="1" fill="none"/>
-    <circle cx="50" cy="45" r="6" fill="#C4974F" opacity="0.5"/>
-    <circle cx="38" cy="72" r="4" fill="#C4974F" opacity="0.4"/>
-    <circle cx="70" cy="30" r="5" fill="#6B5B45" opacity="0.6"/>
-    <path d="M80 5 Q100 40 85 80 Q110 60 105 20Z" fill="#6B5B45" opacity="0.7"/>
-    <path d="M5 80 Q40 100 60 140 Q30 120 5 80Z" fill="#6B5B45" opacity="0.6"/>
-  </svg>
-  <svg class="botanical hero-botanical-bl" width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10 10 Q40 60 20 110 Q50 80 90 100 Q60 50 10 10Z" fill="#6B5B45"/>
-    <path d="M15 15 Q70 30 80 80 Q40 60 15 15Z" fill="#6B5B45"/>
-    <path d="M30 5 Q50 50 30 90" stroke="#C4974F" stroke-width="1" fill="none"/>
-    <circle cx="50" cy="45" r="6" fill="#C4974F" opacity="0.5"/>
-    <circle cx="38" cy="72" r="4" fill="#C4974F" opacity="0.4"/>
-    <circle cx="70" cy="30" r="5" fill="#6B5B45" opacity="0.6"/>
-    <path d="M80 5 Q100 40 85 80 Q110 60 105 20Z" fill="#6B5B45" opacity="0.7"/>
-  </svg>
-  <svg class="botanical hero-botanical-br" width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10 10 Q40 60 20 110 Q50 80 90 100 Q60 50 10 10Z" fill="#6B5B45"/>
-    <path d="M15 15 Q70 30 80 80 Q40 60 15 15Z" fill="#6B5B45"/>
-    <path d="M30 5 Q50 50 30 90" stroke="#C4974F" stroke-width="1" fill="none"/>
-    <circle cx="50" cy="45" r="6" fill="#C4974F" opacity="0.5"/>
-    <circle cx="38" cy="72" r="4" fill="#C4974F" opacity="0.4"/>
-    <circle cx="70" cy="30" r="5" fill="#6B5B45" opacity="0.6"/>
-    <path d="M80 5 Q100 40 85 80 Q110 60 105 20Z" fill="#6B5B45" opacity="0.7"/>
+  <svg class="botanical hero-botanical-tr" viewBox="0 0 100 100" fill="none" stroke="#C5A059" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10,90 Q30,60 50,50" />
+    <path d="M50,50 Q70,30 90,10" />
+    <circle cx="50" cy="50" r="1.5" fill="#C5A059"/>
   </svg>
 
-  <p class="hero-eyebrow reveal">Vous êtes cordialement invités au mariage de</p>
-  <div class="hero-divider reveal"></div>
-
-  <div class="hero-names reveal">
-    Dorra
-    <span class="hero-ampersand">&</span>
-    Youssef
+  <p class="hero-eyebrow reveal">Vous êtes chaleureusement invités à célébrer</p>
+  
+  <div class="hero-names-arch reveal">
+    <h1 class="hero-names">
+      Dorra
+      <span class="hero-ampersand">&amp;</span>
+      Youssef
+    </h1>
   </div>
 
-  <p class="hero-date reveal">Le Samedi 26 Juin 2026</p>
-  <p class="hero-location reveal">Tunis, Tunisie</p>
+  <p class="hero-date reveal">Samedi 20 Juin 2026</p>
+  <p class="hero-location reveal">Hacienda Events — Tunisie</p>
+
+  <!-- Add to Calendar Action -->
+  <div class="reveal" style="margin-top: 32px;">
+    <button id="addToCalendarBtn" class="btn-secondary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Ajouter à mon agenda
+    </button>
+  </div>
 
   <div class="scroll-cue">
-    <span>Défiler</span>
+    <span style="font-family: 'Montserrat', sans-serif;">Découvrir</span>
     <svg viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <path d="M9 3v14M3 13l6 6 6-6"/>
     </svg>
   </div>
 </section>
 
-<!-- ─── DETAILS ────────────────────────────────────────────────── -->
-<section id="details">
-  <p class="section-label reveal">Les cérémonies</p>
-  <h2 class="section-title reveal">Notre journée</h2>
+<!-- ─── PORTRAIT ENCADREMENT DÉCORATIF ────────────────────────── -->
+<section id="portrait-showcase">
 
-  <div class="details-grid">
-    <div class="detail-block reveal">
-      <svg class="detail-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22 4 L22 40M10 10 Q22 6 34 10M8 20 Q22 14 36 20M6 32 Q22 24 38 32" />
-        <circle cx="22" cy="4" r="2" fill="currentColor"/>
-      </svg>
-      <p class="detail-label">Cérémonie religieuse</p>
-      <p class="detail-time">14:30</p>
-      <p class="detail-place">Mosquée Ennour</p>
-      <p class="detail-address">Tunis</p>
+  <div class="portrait-frame reveal">
+
+    <!-- Arche dorée SVG -->
+    <svg class="portrait-arch-svg" viewBox="0 0 376 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- arche principale -->
+      <path d="M18 340 L18 188 Q18 18 188 18 Q358 18 358 188 L358 340 L358 502 L18 502 Z"
+            stroke="#C5A059" stroke-width="1.2" fill="none" opacity="0.6"/>
+      <!-- arche intérieure -->
+      <path d="M32 340 L32 192 Q32 34 188 34 Q344 34 344 192 L344 340 L344 488 L32 488 Z"
+            stroke="#C5A059" stroke-width="0.6" fill="none" opacity="0.35"/>
+      <!-- petits arcs décoratifs en haut -->
+      <path d="M80 18 Q188 -20 296 18" stroke="#C5A059" stroke-width="0.8" fill="none" opacity="0.4"/>
+      <!-- ligne basse -->
+      <line x1="18" y1="502" x2="358" y2="502" stroke="#C5A059" stroke-width="1" opacity="0.5"/>
+      <line x1="32" y1="488" x2="344" y2="488" stroke="#C5A059" stroke-width="0.5" opacity="0.3"/>
+      <!-- petits losanges aux intersections -->
+      <rect x="184" y="494" width="8" height="8" transform="rotate(45 188 498)" fill="#C5A059" opacity="0.7"/>
+      <rect x="184" y="12" width="8" height="8" transform="rotate(45 188 16)" fill="#C5A059" opacity="0.7"/>
+    </svg>
+
+    <!-- Ornements coins -->
+    <svg class="corner corner--tl" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 50 L2 12 Q2 2 12 2 L50 2" stroke="#C5A059" stroke-width="1.2" opacity="0.8"/>
+      <path d="M8 50 L8 16 Q8 8 16 8 L50 8" stroke="#C5A059" stroke-width="0.5" opacity="0.4"/>
+      <circle cx="2" cy="2" r="2.5" fill="#C5A059" opacity="0.9"/>
+      <path d="M2 26 Q14 14 26 2" stroke="#C5A059" stroke-width="0.6" opacity="0.35"/>
+    </svg>
+    <svg class="corner corner--tr" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 50 L2 12 Q2 2 12 2 L50 2" stroke="#C5A059" stroke-width="1.2" opacity="0.8"/>
+      <path d="M8 50 L8 16 Q8 8 16 8 L50 8" stroke="#C5A059" stroke-width="0.5" opacity="0.4"/>
+      <circle cx="2" cy="2" r="2.5" fill="#C5A059" opacity="0.9"/>
+      <path d="M2 26 Q14 14 26 2" stroke="#C5A059" stroke-width="0.6" opacity="0.35"/>
+    </svg>
+    <svg class="corner corner--bl" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 50 L2 12 Q2 2 12 2 L50 2" stroke="#C5A059" stroke-width="1.2" opacity="0.8"/>
+      <path d="M8 50 L8 16 Q8 8 16 8 L50 8" stroke="#C5A059" stroke-width="0.5" opacity="0.4"/>
+      <circle cx="2" cy="2" r="2.5" fill="#C5A059" opacity="0.9"/>
+      <path d="M2 26 Q14 14 26 2" stroke="#C5A059" stroke-width="0.6" opacity="0.35"/>
+    </svg>
+    <svg class="corner corner--br" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 50 L2 12 Q2 2 12 2 L50 2" stroke="#C5A059" stroke-width="1.2" opacity="0.8"/>
+      <path d="M8 50 L8 16 Q8 8 16 8 L50 8" stroke="#C5A059" stroke-width="0.5" opacity="0.4"/>
+      <circle cx="2" cy="2" r="2.5" fill="#C5A059" opacity="0.9"/>
+      <path d="M2 26 Q14 14 26 2" stroke="#C5A059" stroke-width="0.6" opacity="0.35"/>
+    </svg>
+
+    <img src="dorra3.jpg" alt="Dorra" class="portrait-img" />
+  </div>
+
+  <div class="portrait-rule reveal">
+    <span></span>
+    <div class="portrait-rule-diamond"></div>
+    <span></span>
+  </div>
+
+  <p class="portrait-name reveal">Dorra</p>
+  <p class="portrait-subtitle reveal">La Mariée · 20 Juin 2026</p>
+
+</section>
+
+<!-- ─── PHOTOS GALLERY SECTION ─── -->
+<section id="couple-gallery">
+  <p class="section-label reveal">La Mariée</p>
+  <h2 class="section-title reveal">Galerie Photos</h2>
+
+  <div class="gallery-container">
+
+    <!-- Photo principale : Dorra -->
+    <div class="gallery-item gallery-item--featured reveal">
+      <img src="dorra.jpg" alt="Dorra" />
     </div>
 
-    <div class="details-sep"></div>
+    <div class="gallery-item reveal">
+      <img src="dorra2.jpg" alt="Dorra" />
+    </div>
 
-    <div class="detail-block reveal">
-      <svg class="detail-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8 36 L8 20 Q22 10 36 20 L36 36"/>
-        <path d="M2 36 L42 36"/>
-        <path d="M18 36 L18 26 Q22 22 26 26 L26 36"/>
-        <path d="M22 14 L22 8"/>
-        <circle cx="22" cy="6" r="2.5" fill="currentColor" stroke="none"/>
-      </svg>
-      <p class="detail-label">Réception</p>
-      <p class="detail-time">19:00</p>
-      <p class="detail-place">Villa Dar Mimosa</p>
-      <p class="detail-address">La Marsa</p>
+    <div class="gallery-item gallery-placeholder reveal">
+      <div class="placeholder-inner">
+        <svg viewBox="0 0 60 60" fill="none" stroke="#C5A059" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 50 Q20 20 30 15 Q40 20 50 50"/>
+          <circle cx="30" cy="12" r="6"/>
+          <circle cx="18" cy="28" r="4"/>
+          <circle cx="42" cy="28" r="4"/>
+        </svg>
+        <p>Photo à venir</p>
+      </div>
+    </div>
+
+    <div class="gallery-item gallery-placeholder reveal">
+      <div class="placeholder-inner">
+        <svg viewBox="0 0 60 60" fill="none" stroke="#C5A059" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+          <rect x="12" y="18" width="36" height="28" rx="3"/>
+          <circle cx="30" cy="32" r="8"/>
+          <circle cx="44" cy="22" r="3" fill="#C5A059"/>
+        </svg>
+        <p>Photo à venir</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── DETAILS ────────────────────────────────────────────────── -->
+<section id="details">
+  <p class="section-label reveal">La Cérémonie</p>
+  <h2 class="section-title reveal">Le Lieu</h2>
+
+  <div class="details-grid" style="grid-template-columns: 1fr;">
+    <div class="detail-card reveal" style="max-width: 480px; margin: 0 auto;">
+      <div>
+        <div class="detail-top-decor">✧</div>
+        <p class="detail-label">Cérémonie de Mariage</p>
+        <p class="detail-time">16:00 — 19:00</p>
+      </div>
+      <div>
+        <p class="detail-place">Hacienda Events</p>
+        <p class="detail-address">Tunisie</p>
+      </div>
+      <a href="https://maps.google.com/?q=Hacienda+Events+Tunisie" target="_blank" class="btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        S'y rendre
+      </a>
     </div>
   </div>
 </section>
 
-<!-- ─── COUNTDOWN ──────────────────────────────────────────────── -->
-<div id="countdown-section">
-  <p class="section-label reveal">Plus que</p>
-  <h2 class="section-title reveal">Le grand jour approche</h2>
 
-  <div class="countdown-grid reveal">
+<!-- ─── COMPTE À REBOURS ──────────────────────────────────────────── -->
+<section id="countdown-section">
+  <p class="section-label">Le Grand Jour Approche</p>
+  <h2 class="section-title">Compte à Rebours</h2>
+  <div class="countdown-grid">
     <div class="cd-block">
       <span class="cd-num" id="cd-days">—</span>
-      <span class="cd-label">Jours</span>
+      <div class="cd-label">Jours</div>
     </div>
-    <span class="cd-sep">·</span>
+    <div class="cd-sep">·</div>
     <div class="cd-block">
       <span class="cd-num" id="cd-hours">—</span>
-      <span class="cd-label">Heures</span>
+      <div class="cd-label">Heures</div>
     </div>
-    <span class="cd-sep">·</span>
+    <div class="cd-sep">·</div>
     <div class="cd-block">
-      <span class="cd-num" id="cd-mins">—</span>
-      <span class="cd-label">Minutes</span>
+      <span class="cd-num" id="cd-minutes">—</span>
+      <div class="cd-label">Minutes</div>
     </div>
-    <span class="cd-sep">·</span>
+    <div class="cd-sep">·</div>
     <div class="cd-block">
-      <span class="cd-num" id="cd-secs">—</span>
-      <span class="cd-label">Secondes</span>
+      <span class="cd-num" id="cd-seconds">—</span>
+      <div class="cd-label">Secondes</div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- ─── PROGRAM ────────────────────────────────────────────────── -->
+<!-- ─── PROGRAMME ──────────────────────────────────────────────────── -->
 <section id="programme">
-  <p class="section-label reveal">Déroulement</p>
-  <h2 class="section-title reveal">Programme de la journée</h2>
+  <p class="section-label reveal">La Journée</p>
+  <h2 class="section-title reveal">Programme</h2>
   <div class="ornament reveal">✦ ✦ ✦</div>
 
   <div class="timeline">
-    <div class="tl-item reveal">
-      <div class="tl-content">
-        <div class="tl-title">Accueil des invités</div>
-        <div class="tl-desc">Café & pâtisseries</div>
-      </div>
-      <div class="tl-dot"></div>
-      <div class="tl-time">13:30</div>
-    </div>
 
     <div class="tl-item reveal">
-      <div class="tl-time">14:30</div>
-      <div class="tl-dot"></div>
       <div class="tl-content">
-        <div class="tl-title">Cérémonie religieuse</div>
-        <div class="tl-desc">Mosquée Ennour · Tunis</div>
+        <p class="tl-title">Accueil des Invités</p>
+        <p class="tl-desc">Cocktail de bienvenue & rafraîchissements</p>
       </div>
+      <div class="tl-dot"></div>
+      <div class="tl-time">16h</div>
     </div>
 
     <div class="tl-item reveal">
       <div class="tl-content">
-        <div class="tl-title">Cocktail & Photos</div>
-        <div class="tl-desc">Jardin de la villa</div>
+        <p class="tl-title">La Cérémonie</p>
+        <p class="tl-desc">L'union sacrée de Dorra & Youssef</p>
       </div>
       <div class="tl-dot"></div>
-      <div class="tl-time">17:00</div>
-    </div>
-
-    <div class="tl-item reveal">
-      <div class="tl-time">19:00</div>
-      <div class="tl-dot"></div>
-      <div class="tl-content">
-        <div class="tl-title">Dîner de gala</div>
-        <div class="tl-desc">Villa Dar Mimosa · La Marsa</div>
-      </div>
+      <div class="tl-time">17h</div>
     </div>
 
     <div class="tl-item reveal">
       <div class="tl-content">
-        <div class="tl-title">Soirée & Musique</div>
-        <div class="tl-desc">Jusqu'aux premières lueurs</div>
+        <p class="tl-title">Séance Photos</p>
+        <p class="tl-desc">Souvenirs immortalisés avec les mariés</p>
       </div>
       <div class="tl-dot"></div>
-      <div class="tl-time">23:00</div>
+      <div class="tl-time">18h</div>
     </div>
+
+    <div class="tl-item reveal">
+      <div class="tl-content">
+        <p class="tl-title">Dîner de Gala</p>
+        <p class="tl-desc">Un festin raffiné en votre honneur</p>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="tl-time">20h</div>
+    </div>
+
+    <div class="tl-item reveal">
+      <div class="tl-content">
+        <p class="tl-title">Soirée & Animations</p>
+        <p class="tl-desc">Musique, danse et célébration jusqu'au bout de la nuit</p>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="tl-time">22h</div>
+    </div>
+
   </div>
 </section>
 
-<!-- ─── RSVP ───────────────────────────────────────────────────── -->
-<section id="rsvp">
-  <p class="section-label reveal">Confirmation de présence</p>
-  <h2 class="section-title reveal">Serez-vous des nôtres ?</h2>
-  <div class="ornament reveal">✦ ✦ ✦</div>
+<!-- ─── LIVRE D'OR ─────────────────────────────────────────────────── -->
+<section id="guestbook">
+  <p class="section-label reveal">Livre d'Or</p>
+  <h2 class="section-title reveal">Vos Messages</h2>
 
-  <div class="rsvp-form reveal" id="rsvpForm">
+  <form class="gb-form reveal" id="guestbookForm" novalidate>
     <div class="form-field">
-      <label>Votre prénom & nom</label>
-      <input type="text" id="rsvp-name" placeholder="ex. Yasmine Ben Ali" autocomplete="name" />
+      <label for="gb-name">Votre Prénom</label>
+      <input type="text" id="gb-name" placeholder="Entrez votre prénom…" />
     </div>
     <div class="form-field">
-      <label>Votre numéro de téléphone</label>
-      <input type="tel" id="rsvp-phone" placeholder="+216 XX XXX XXX" autocomplete="tel" />
+      <label for="gb-message">Votre Message</label>
+      <textarea id="gb-message" placeholder="Un mot pour les mariés…"></textarea>
     </div>
-    <div class="form-field">
-      <label>Nombre de personnes</label>
-      <select id="rsvp-guests">
-        <option value="">— Sélectionnez —</option>
-        <option value="1">1 personne</option>
-        <option value="2">2 personnes</option>
-        <option value="3">3 personnes</option>
-        <option value="4">4 personnes</option>
-      </select>
-    </div>
-    <div class="form-field">
-      <label>Présence</label>
-      <select id="rsvp-attending">
-        <option value="">— Sélectionnez —</option>
-        <option value="yes">Oui, avec joie !</option>
-        <option value="no">Je regrette de ne pas pouvoir</option>
-      </select>
-    </div>
-    <button type="button" class="btn-submit" id="rsvpBtn">Confirmer ma présence</button>
-    <p class="form-note">Merci de confirmer avant le 10 juin 2026</p>
-  </div>
+    <button type="submit" class="btn-submit">Laisser un Message</button>
+  </form>
 
-  <div class="form-success" id="formSuccess">
-    <div class="success-names">Merci !</div>
-    <p>Votre confirmation a bien été enregistrée.<br/>Nous avons hâte de célébrer ce moment avec vous.</p>
-  </div>
+  <div class="gb-messages reveal" id="gbMessages"></div>
 </section>
 
 <!-- ─── FOOTER ─────────────────────────────────────────────────── -->
 <footer>
   <div class="footer-names">Dorra &amp; Youssef</div>
-  <p class="footer-love">Avec tout notre amour</p>
-  <p class="footer-date">26 · 06 · 2026 — Tunis</p>
+  <p class="footer-love">Notre Histoire d'Amour</p>
+  <p class="footer-date">20 Juin 2026 — Tunisie</p>
 </footer>
 
 <script>
-  /* ── Envelope open ── */
-  const overlay  = document.getElementById('envelope-overlay');
-  const envWrap  = document.getElementById('envelopeWrap');
+  /* ── Canvas — Pétales & Étoiles permanents ── */
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  let rafId;
+  let ambientParticles = [];
+  let burstParticles = [];
 
-  envWrap.addEventListener('click', () => {
-    envWrap.classList.add('open');
-    setTimeout(() => overlay.classList.add('fade-out'), 900);
-    setTimeout(() => { overlay.style.display = 'none'; }, 1750);
-  });
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
 
-  /* ── Countdown ── */
-  const target = new Date('2026-06-26T14:30:00');
-
-  function updateCountdown() {
-    const now  = new Date();
-    const diff = target - now;
-
-    if (diff <= 0) {
-      document.getElementById('cd-days').textContent  = '0';
-      document.getElementById('cd-hours').textContent = '0';
-      document.getElementById('cd-mins').textContent  = '0';
-      document.getElementById('cd-secs').textContent  = '0';
-      return;
+  /* Pétale : forme de rose douce dessinée en bezier */
+  class Petal {
+    constructor(fromTop) {
+      this.reset(fromTop);
     }
-
-    const days  = Math.floor(diff / 86400000);
-    const hours = Math.floor((diff % 86400000) / 3600000);
-    const mins  = Math.floor((diff % 3600000)  / 60000);
-    const secs  = Math.floor((diff % 60000)    / 1000);
-
-    document.getElementById('cd-days').textContent  = days;
-    document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
-    document.getElementById('cd-mins').textContent  = String(mins).padStart(2, '0');
-    document.getElementById('cd-secs').textContent  = String(secs).padStart(2, '0');
+    reset(fromTop) {
+      this.x = Math.random() * canvas.width;
+      this.y = fromTop ? -20 - Math.random() * canvas.height : Math.random() * canvas.height;
+      this.size = Math.random() * 9 + 5;
+      this.speedY = Math.random() * 0.7 + 0.3;
+      this.drift = (Math.random() - 0.5) * 0.4;
+      this.angle = Math.random() * Math.PI * 2;
+      this.spin = (Math.random() - 0.5) * 0.018;
+      this.alpha = Math.random() * 0.35 + 0.1;
+      this.color = Math.random() > 0.5 ? '#C5A059' : '#F1E5CF';
+      this.wobble = Math.random() * Math.PI * 2;
+      this.wobbleSpeed = Math.random() * 0.015 + 0.005;
+    }
+    update() {
+      this.wobble += this.wobbleSpeed;
+      this.x += this.drift + Math.sin(this.wobble) * 0.4;
+      this.y += this.speedY;
+      this.angle += this.spin;
+      if (this.y > canvas.height + 30) this.reset(true);
+    }
+    draw() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      ctx.globalAlpha = this.alpha;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      const s = this.size;
+      ctx.moveTo(0, -s);
+      ctx.bezierCurveTo(s * 0.7, -s * 0.5, s * 0.7, s * 0.5, 0, s);
+      ctx.bezierCurveTo(-s * 0.7, s * 0.5, -s * 0.7, -s * 0.5, 0, -s);
+      ctx.fill();
+      ctx.restore();
+    }
   }
 
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
+  /* Étoile scintillante */
+  class Star {
+    constructor(fromTop) {
+      this.reset(fromTop);
+    }
+    reset(fromTop) {
+      this.x = Math.random() * canvas.width;
+      this.y = fromTop ? -10 : Math.random() * canvas.height;
+      this.size = Math.random() * 3 + 1;
+      this.speedY = Math.random() * 0.5 + 0.15;
+      this.drift = (Math.random() - 0.5) * 0.3;
+      this.alpha = 0;
+      this.targetAlpha = Math.random() * 0.5 + 0.15;
+      this.twinkle = Math.random() * Math.PI * 2;
+      this.twinkleSpeed = Math.random() * 0.03 + 0.01;
+    }
+    update() {
+      this.twinkle += this.twinkleSpeed;
+      this.alpha = this.targetAlpha * (0.5 + 0.5 * Math.sin(this.twinkle));
+      this.x += this.drift;
+      this.y += this.speedY;
+      if (this.y > canvas.height + 10) this.reset(true);
+    }
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.fillStyle = '#F1E5CF';
+      const s = this.size;
+      ctx.translate(this.x, this.y);
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2;
+        const b = a + Math.PI / 4;
+        ctx.lineTo(Math.cos(a) * s, Math.sin(a) * s);
+        ctx.lineTo(Math.cos(b) * s * 0.35, Math.sin(b) * s * 0.35);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+  }
 
-  /* ── Scroll reveal ── */
+  /* Particule de burst au clic */
+  class Burst {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = -20 - Math.random() * 60;
+      this.size = Math.random() * 7 + 3;
+      this.speedY = Math.random() * 3 + 2;
+      this.speedX = (Math.random() - 0.5) * 2;
+      this.rotation = Math.random() * 360;
+      this.spin = (Math.random() - 0.5) * 4;
+      this.alpha = 1;
+      this.color = ['#C5A059','#F1E5CF','#FFFBF5','#E8D5A3','#D4AF70'][Math.floor(Math.random() * 5)];
+    }
+    update() {
+      this.y += this.speedY;
+      this.x += this.speedX;
+      this.rotation += this.spin;
+      this.speedY += 0.05;
+      if (this.y > canvas.height) this.alpha = 0;
+    }
+    draw() {
+      if (this.alpha <= 0) return;
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate((this.rotation * Math.PI) / 180);
+      ctx.globalAlpha = this.alpha;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.size, this.size / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function initAmbient() {
+    ambientParticles = [];
+    for (let i = 0; i < 38; i++) ambientParticles.push(new Petal(false));
+    for (let i = 0; i < 22; i++) ambientParticles.push(new Star(false));
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ambientParticles.forEach(p => { p.update(); p.draw(); });
+    burstParticles = burstParticles.filter(p => p.alpha > 0);
+    burstParticles.forEach(p => { p.update(); p.draw(); });
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function startConfetti() {
+    for (let i = 0; i < 120; i++) burstParticles.push(new Burst());
+  }
+
+  function stopConfetti() { /* burst s'efface naturellement */ }
+
+  initAmbient();
+  loop();
+
+
+  /* ── Overlay Fade and Music Playback ── */
+  const overlay  = document.getElementById('envelope-overlay');
+  const enterBtn = document.getElementById('enterBtn');
+  const bgMusic  = document.getElementById('bgMusic');
+  const audioPlayer = document.getElementById('audioPlayer');
+  const audioToggleBtn = document.getElementById('audioToggleBtn');
+  const navHeader = document.getElementById('nav-header');
+
+  enterBtn.addEventListener('click', () => {
+    startConfetti();
+    
+    // Play gorgeous classical piano on click (allows browsers to authorize audio autoplay)
+    bgMusic.volume = 0.5;
+    bgMusic.play().then(() => {
+      audioPlayer.classList.add('visible');
+      audioPlayer.classList.add('playing');
+    }).catch(e => {
+      console.log("Lecture audio bloquée ou nécessite une autre interaction", e);
+      audioPlayer.classList.add('visible');
+    });
+
+    // Elegant Fade-out of Intro Video
+    overlay.classList.add('fade-out');
+    setTimeout(() => { 
+      overlay.style.display = 'none'; 
+      stopConfetti();
+      navHeader.classList.add('visible'); // Unveil the high-end sticky header
+    }, 1800);
+  });
+
+  /* ── Simple Floating Vinyl Play/Pause ── */
+  audioToggleBtn.addEventListener('click', () => {
+    if (bgMusic.paused) {
+      bgMusic.play();
+      audioPlayer.classList.add('playing');
+    } else {
+      bgMusic.pause();
+      audioPlayer.classList.remove('playing');
+    }
+  });
+
+
+  /* ── Custom elegant luxury Toast ── */
+  const toast = document.getElementById('custom-toast');
+  const toastMsg = document.getElementById('toast-message');
+  function showToast(message) {
+    toastMsg.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 4500);
+  }
+
+
+  /* ── High-end Scroll Reveal Observer ── */
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -1095,24 +1696,88 @@
         observer.unobserve(e.target);
       }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.1 });
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  /* ── RSVP submit ── */
-  document.getElementById('rsvpBtn').addEventListener('click', () => {
-    const name      = document.getElementById('rsvp-name').value.trim();
-    const attending = document.getElementById('rsvp-attending').value;
 
-    if (!name || !attending) {
-      alert('Merci de remplir au moins votre nom et votre réponse.');
-      return;
+
+  /* ── Countdown ── */
+  (function () {
+    const wedding = new Date('2026-06-20T16:00:00');
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function tick() {
+      const diff = wedding - new Date();
+      if (diff <= 0) {
+        ['cd-days','cd-hours','cd-minutes','cd-seconds'].forEach(id => document.getElementById(id).textContent = '00');
+        return;
+      }
+      document.getElementById('cd-days').textContent    = pad(Math.floor(diff / 86400000));
+      document.getElementById('cd-hours').textContent   = pad(Math.floor((diff % 86400000) / 3600000));
+      document.getElementById('cd-minutes').textContent = pad(Math.floor((diff % 3600000) / 60000));
+      document.getElementById('cd-seconds').textContent = pad(Math.floor((diff % 60000) / 1000));
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+
+  /* ── Livre d'Or ── */
+  (function () {
+    const KEY = 'dorra_youssef_guestbook';
+    const defaults = [
+      { name: 'Famille Ben Ali', text: 'Que votre union soit bénie et remplie d\'amour pour toujours. Mabrouk !' },
+      { name: 'Amira & Karim',  text: 'Tellement heureuse pour vous deux. C\'est le début d\'une belle aventure à deux !' }
+    ];
+
+    function esc(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    document.getElementById('rsvpForm').style.display = 'none';
-    const success = document.getElementById('formSuccess');
-    success.style.display = 'block';
-    success.classList.add('visible');
+    function load() {
+      try { return JSON.parse(localStorage.getItem(KEY)) || defaults; } catch { return defaults; }
+    }
+
+    function save(msgs) {
+      try { localStorage.setItem(KEY, JSON.stringify(msgs)); } catch {}
+    }
+
+    function render(msgs) {
+      document.getElementById('gbMessages').innerHTML = msgs.map(m =>
+        `<div class="msg-card">
+          <p class="msg-author">${esc(m.name)}</p>
+          <p class="msg-text">"${esc(m.text)}"</p>
+        </div>`
+      ).join('');
+    }
+
+    let messages = load();
+    render(messages);
+
+    document.getElementById('guestbookForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('gb-name').value.trim();
+      const text = document.getElementById('gb-message').value.trim();
+      if (!name || !text) { showToast('Merci de remplir votre prénom et votre message.'); return; }
+      messages = [{ name, text }, ...messages];
+      save(messages);
+      render(messages);
+      e.target.reset();
+      showToast('Votre message a été ajouté — Merci !');
+    });
+  })();
+
+  /* ── Add to Calendar Functionality ── */
+  document.getElementById('addToCalendarBtn').addEventListener('click', () => {
+    const title = "Mariage de Dorra & Youssef";
+    const details = "Venez célébrer notre union sacrée et notre grand jour à Tunis.";
+    const location = "Hacienda Events, Tunisie";
+    const startDate = "20260620T160000";
+    const endDate = "20260620T190000";
+
+    const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startDate}/${endDate}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
+    
+    window.open(googleUrl, '_blank');
+    showToast("Ouverture de Google Agenda...");
   });
 </script>
 </body>
